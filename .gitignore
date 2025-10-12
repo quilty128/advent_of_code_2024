@@ -1,0 +1,71 @@
+scratch.txt
+input/*
+
+# =========================
+# Cabal specific
+# =========================
+dist/
+dist-newstyle/
+cabal.project.local
+cabal.project.local~
+*.cabal
+!*.cabal
+.cabal-sandbox/
+cabal.sandbox.config
+
+# =========================
+# Stack (alternative build tool)
+# =========================
+.stack-work/
+stack.yaml.lock
+
+# =========================
+# GHC compilation artifacts
+# =========================
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+*.p_o
+*.p_hi
+
+# =========================
+# Profiling and debugging
+# =========================
+*.prof
+*.aux
+*.hp
+*.eventlog
+*.tix
+*.mix
+
+# =========================
+# Documentation
+# =========================
+haddock/
+docs/site/
+
+# =========================
+# IDE and editor files
+# =========================
+.haskell-ide-engine/
+.ghc.environment.*
+.hie/
+.hie-dir/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS-specific files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Test and benchmark outputs
+# =========================
+*.bench.html
+*.bench.json
