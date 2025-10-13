@@ -1,7 +1,8 @@
 module Shared.VectorHelper where
 
+import Data.Vector (Vector)
 import qualified Data.Vector as V
-import Prelude (flip, ($), (-))
+import Prelude (flip, (+))
 
-tails :: V.Vector a -> V.Vector (V.Vector a)
-tails vec = V.map ((flip V.drop) vec) $ V.fromList [0 .. V.length vec - 1]
+tails :: Vector a -> Vector (Vector a)
+tails vec = V.generate (V.length vec + 1) ((flip V.drop) vec)
