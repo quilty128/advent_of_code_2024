@@ -1,5 +1,7 @@
 module Shared.Utils where
 
+import Prelude (Eq, break, div, error, length, odd, (!!), (==), (>))
+
 splitOn :: (Eq a) => a -> [a] -> [[a]]
 splitOn _ [] = []
 splitOn a list =
@@ -10,9 +12,11 @@ splitOn a list =
         _ -> []
 
 middle :: [a] -> a
-middle xs = 
-  if odd len then 
-    xs !! (len `div` 2)
-  else
-    error "middle: length of input is not odd"
-  where len = length xs
+middle xs =
+  if odd len
+    then
+      xs !! (len `div` 2)
+    else
+      error "middle: length of input is not odd"
+  where
+    len = length xs
