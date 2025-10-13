@@ -10,12 +10,20 @@ extra-source-files:  README.md
 
 common common-options
   default-language: Haskell2010
-  ghc-options: -Wall
+  ghc-options: -Wall -fobject-code
+  hs-source-dirs: src
   build-depends:
       base ^>=4.13 && <5
     , vector
     , matrix
     , hashmap
+
+library
+  import: common-options
+  exposed-modules:
+    Shared.VectorHelper
+    , Shared.MatrixHelper
+    , Shared.Utils
 
 executable day1
   import: common-options
@@ -46,3 +54,8 @@ executable day5
   hs-source-dirs: src
   other-modules:
     Shared.Utils
+
+executable day6
+  import: common-options
+  main-is: Day6/Main.hs
+  hs-source-dirs: src

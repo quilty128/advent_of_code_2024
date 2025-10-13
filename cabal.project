@@ -1,0 +1,6 @@
+-- cabal.project
+packages: .
+
+-- Enable object code for GHCi
+package *
+  ghc-options: -fobject-code
