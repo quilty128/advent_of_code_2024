@@ -44,3 +44,5 @@ executable day5
   import: common-options
   main-is: Day5/Main.hs
   hs-source-dirs: src
+  other-modules:
+    Shared.Utils

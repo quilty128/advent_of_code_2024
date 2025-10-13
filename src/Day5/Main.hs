@@ -1,17 +1,23 @@
 module Main where
 
 import Data.List (sortBy)
-import qualified Data.HashMap as H
 import Data.HashMap (Map)
+import qualified Data.HashMap as H
 
-splitOn :: (Eq a) => a -> [a] -> [[a]]
-splitOn _ [] = []
-splitOn a list =
-  let (part, rest) = break (== a) list
-   in part : case rest of
-        (x : xs) | x == a -> splitOn a xs
-        xs | length xs > 1 -> splitOn a xs
-        _ -> []
+import Shared.Utils (middle, splitOn)
+
+type Page = Int
+type Update = [Page]
+type Rules = Map Int [Int]
+
+comparePages' :: Rules -> Page -> Page -> Ordering
+comparePages' rules pg1 pg2 
+  | pg1 == pg2 = EQ
+  | otherwise = case H.lookup pg1 rules of
+    Just pagesAfter | pg2 `elem` pagesAfter -> LT
+    _ -> case H.lookup pg2 rules of
+      Just pagesAfter | pg1 `elem` pagesAfter -> GT
+      _ -> error $ "No rule for page numbers " ++ (show pg1) ++ " and " ++ (show pg2)
 
 parseRules :: String -> Map Int [Int]
 parseRules input =
@@ -55,30 +61,12 @@ solve1 input =
 
 ----- Part 2 -----
 
-type Page = Int
-type Update = [Page]
-type Rules = Map Int [Int]
-
-comparePages' :: Rules -> Page -> Page -> Ordering
-comparePages' rules pg1 pg2 
-  | pg1 == pg2 = EQ
-  | otherwise = case H.lookup pg1 rules of
-    Just pagesAfter | pg2 `elem` pagesAfter -> LT
-    _ -> case H.lookup pg2 rules of
-      Just pagesAfter | pg1 `elem` pagesAfter -> GT
-      _ -> error $ "No rule for page numbers " ++ (show pg1) ++ " and " ++ (show pg2)
-
--- Assumes length is odd
-getMiddle :: [a] -> a
-getMiddle xs = xs !! (len `div` 2)
-  where len = length xs
-
 solve2 :: String -> Int
 solve2 input =
   let rules = parseRules input
       comparePages = comparePages' rules
       incorrectUpdates = filter (not . updateIsCorrect rules) $ parseUpdates input
-   in sum $ map (getMiddle) $ map (sortBy comparePages) incorrectUpdates
+   in sum $ map (middle) $ map (sortBy comparePages) incorrectUpdates
 
 main :: IO ()
 main = do
