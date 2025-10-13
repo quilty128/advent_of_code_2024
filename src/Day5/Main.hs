@@ -3,73 +3,70 @@ module Main where
 import Data.List (sortBy)
 import Data.HashMap (Map)
 import qualified Data.HashMap as H
-
+import Data.HashSet (Set)
+import qualified Data.HashSet as HS
 import Shared.Utils (middle, splitOn)
 
 type Page = Int
+
 type Update = [Page]
-type Rules = Map Int [Int]
+
+type Rules = Map Page (Set Page)
 
 comparePages' :: Rules -> Page -> Page -> Ordering
-comparePages' rules pg1 pg2 
+comparePages' rules pg1 pg2
   | pg1 == pg2 = EQ
   | otherwise = case H.lookup pg1 rules of
-    Just pagesAfter | pg2 `elem` pagesAfter -> LT
-    _ -> case H.lookup pg2 rules of
-      Just pagesAfter | pg1 `elem` pagesAfter -> GT
-      _ -> error $ "No rule for page numbers " ++ (show pg1) ++ " and " ++ (show pg2)
+      Just pagesAfter | pg2 `HS.member` pagesAfter -> LT
+      _ -> case H.lookup pg2 rules of
+        Just pagesAfter | pg1 `HS.member` pagesAfter -> GT
+        _ -> error $ "No rule for page numbers " ++ (show pg1) ++ " and " ++ (show pg2)
 
-parseRules :: String -> Map Int [Int]
+parseRules :: String -> Rules
 parseRules input =
-  let [pageOrderingRules, _] = splitOn "" $ lines input
-   in toHashMap $ map (\[a, b] -> (read a, read b)) $ map (splitOn '|') pageOrderingRules
+  let [orderingRules, _] = splitOn "" $ lines input
+   in toHashMap $ map (\[a, b] -> (read a, read b)) $ map (splitOn '|') orderingRules
   where
-    f hashMap (k, v) = H.insertWith (\newval oldval -> oldval ++ newval) k [v] hashMap
+    f hashMap (k, v) =
+      H.insertWith
+        (\newval oldval -> (HS.union newval oldval))
+        k
+        (HS.singleton v)
+        hashMap
     toHashMap rules = foldl f (H.empty) rules
 
-parseUpdates :: String -> [[Int]]
+parseUpdates :: String -> [Update]
 parseUpdates input =
   let [_, updates] = splitOn "" $ lines input
    in map ((map read) . (splitOn ',')) updates
 
-updateIsCorrect :: Map Int [Int] -> [Int] -> Bool
-updateIsCorrect rules update =
+validateUpdate :: Rules -> Update -> Bool
+validateUpdate rules update =
   all
-    ( \(i, j) ->
-        let pg1 = update !! i
-            pg2 = update !! j
-         in correctlyBefore pg1 pg2
-    )
-    [ (i, j)
+    (uncurry correctlyOrdered)
+    [ (update !! i, update !! j)
     | i <- [0 .. (length update) - 1],
       j <- [0 .. (length update) - 1],
       i < j
     ]
   where
-    -- Ordering rules specify that `pg1` is before `pg2`
-    correctlyBefore pg1 pg2 = case (H.lookup pg1 rules, H.lookup pg2 rules) of
-      (Just pagesAfter1, Just pagesAfter2) -> pg2 `elem` pagesAfter1 && not (pg1 `elem` pagesAfter2)
-      (Just pagesAfter1, Nothing) -> pg2 `elem` pagesAfter1
-      (Nothing, Just pagesAfter2) -> not (pg1 `elem` pagesAfter2)
-      (Nothing, Nothing) -> error $ "No rule for page " ++ (show pg1)
+    correctlyOrdered pg1 pg2 = comparePages' rules pg1 pg2 /= GT
 
-solve1 :: String -> Int
-solve1 input =
-  let rules = parseRules input
-      correctUpdates = filter (updateIsCorrect rules) $ parseUpdates input
+solve1 :: Rules -> [Update] -> Int
+solve1 rules updates =
+  let correctUpdates = filter (validateUpdate rules) updates
    in sum $ map (\update -> update !! ((length update) `div` 2)) correctUpdates
 
------ Part 2 -----
-
-solve2 :: String -> Int
-solve2 input =
-  let rules = parseRules input
-      comparePages = comparePages' rules
-      incorrectUpdates = filter (not . updateIsCorrect rules) $ parseUpdates input
+solve2 :: Rules -> [Update] -> Int
+solve2 rules updates =
+  let comparePages = comparePages' rules
+      incorrectUpdates = filter (not . validateUpdate rules) updates
    in sum $ map (middle) $ map (sortBy comparePages) incorrectUpdates
 
 main :: IO ()
 main = do
   input <- readFile "input/day5.txt"
-  putStrLn $ "Part 1: " ++ (show $ solve1 input)
-  putStrLn $ "Part 2: " ++ (show $ solve2 input)
+  let rules = parseRules input
+  let updates = parseUpdates input
+  putStrLn $ "Part 1: " ++ (show $ solve1 rules updates)
+  putStrLn $ "Part 2: " ++ (show $ solve2 rules updates)
