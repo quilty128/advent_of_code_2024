@@ -17,6 +17,7 @@ common common-options
     , vector
     , matrix
     , hashmap
+    , sized-vector
 
 library
   import: common-options
