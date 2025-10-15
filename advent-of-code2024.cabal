@@ -60,3 +60,10 @@ executable day6
   import: common-options
   main-is: Day6/Main.hs
   hs-source-dirs: src
+
+executable day7
+  import: common-options
+  main-is: Day7/Main.hs
+  hs-source-dirs: src
+  other-modules:
+    Day7.Part1
