@@ -33,52 +33,41 @@ turnRight dir = case dir of
 
 type Boulders = Set Point
 
-data Guard = Guard Point Direction
-  deriving (Show, Eq)
-
-guardPos :: Guard -> Point
-{-# INLINE guardPos #-}
-guardPos (Guard pos _) = pos
-
-inBounds :: Point -> Guard -> Bool
+inBounds :: Point -> Point -> Bool
 {-# INLINE inBounds #-}
-inBounds (iMax, jMax) (Guard (i, j) _) =
-  0 <= i && i <= iMax && 0 <= j && j <= jMax
+inBounds (iMax, jMax) (i, j) = 0 <= i && i <= iMax && 0 <= j && j <= jMax
 
 ----- Solution -----
 
-parseInput :: String -> (Boulders, Point, Guard)
-parseInput input = (boulders, (width - 1, height - 1), guard)
+parseInput :: String -> (Boulders, Point, Point)
+parseInput input = (boulders, maxCoord, startPoint)
   where
     grid = lines input
-    width = case grid of (firstRow : _) -> length firstRow
-    height = length grid
-    (boulders, guard) =
+    maxCoord = (length grid - 1, length grid - 1)
+    coords = [(i, j) | i <- [0 .. ], j <- [0 .. ], i <= fst maxCoord, j <= snd maxCoord]
+    (boulders, startPoint) =
       foldr
-        ( \(c, point) (set', guard') ->
+        ( \(c, point) (set', startPoint') ->
             case c of
-              '#' -> (point `S.insert` set', guard')
-              '^' -> (set', Guard point North)
-              'v' -> (set', Guard point South)
-              '>' -> (set', Guard point East)
-              '<' -> (set', Guard point West)
-              _ -> (set', guard')
+              '#' -> (point `S.insert` set', startPoint')
+              '^' -> (set', point)
+              _ -> (set', startPoint')
         )
-        (S.empty, Guard (0, 0) North)
-        $ zip (concat grid) [(i, j) | i <- [0 .. height - 1], j <- [0 .. width - 1]]
+        (S.empty, (0, 0))
+        $ zip (concat grid) coords
 
-stepPath :: Boulders -> Point -> Guard -> [Guard]
-stepPath boulders maxCoord guard = takeWhile (inBounds maxCoord) $ iterate (stepOnce) guard
+stepPath :: Boulders -> Point -> Point -> [Point]
+stepPath boulders maxCoord p0 = go p0 North []
   where
-    stepOnce (Guard pos dir)
-      | pos' `S.member` boulders = Guard pos (turnRight dir)
-      | otherwise = Guard pos' dir
+    go p dir xs
+      | p' `inBounds` maxCoord = xs
+      | p' `S.member` boulders = go p (turnRight dir) xs
+      | otherwise = go p' dir (p' : xs)
       where
-        pos' = pos <+> (toPoint dir)
+        p' = p <+> (toPoint dir)
 
-part1 :: Boulders -> Point -> Guard -> Int
-part1 boulders maxCoord =
-  length . nub . map guardPos . stepPath boulders maxCoord
+part1 :: Boulders -> Point -> Point -> Int
+part1 boulders maxCoord = length . nub . stepPath boulders maxCoord
 
 -- Uses tortoise and hare
 hasLoop :: (Eq a) => [a] -> Bool
@@ -89,15 +78,15 @@ hasLoop xs0 = go xs0 (drop 1 xs0)
 
 -- The confusing parts of this function definition are to ensure that we only test
 -- inserting boulders along the guard’s path.
-part2 :: Set Point -> Point -> Guard -> Int
-part2 boulders maxCoord guard =
-  length $ filter goodBoulder $ nub . map guardPos $ stepPath boulders maxCoord guard
+part2 :: Set Point -> Point -> Point -> Int
+part2 boulders maxCoord p0 =
+  length $ filter goodBoulder $ nub $ stepPath boulders maxCoord p0
   where
-    goodBoulder p = p /= (guardPos guard) && hasLoop (stepPath (S.insert p boulders) maxCoord guard)
+    goodBoulder p = p /= p0 && hasLoop (stepPath (S.insert p boulders) maxCoord p0)
 
 main :: IO ()
 main = do
   input <- readFile "input/day6.txt"
-  let (boulders, maxCoord, guard) = parseInput input
-  putStrLn $ "Part 1: " ++ (show $ part1 boulders maxCoord guard)
-  putStrLn $ "Part 2: " ++ (show $ part2 boulders maxCoord guard)
+  let (boulders, maxCoord, startPoint) = parseInput input
+  putStrLn $ "Part 1: " ++ (show $ part1 boulders maxCoord startPoint)
+  putStrLn $ "Part 2: " ++ (show $ part2 boulders maxCoord startPoint)

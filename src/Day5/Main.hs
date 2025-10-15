@@ -1,3 +1,6 @@
+-- The incomplete patterns in this file work for all puzzle inputs
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+
 module Main where
 
 import Data.List (sortBy)
