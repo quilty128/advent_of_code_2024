@@ -1,6 +1,7 @@
 module Main where
 
-import Day7.Part1
+import Day7.Part1 (part1)
+import Day7.Part2 (part2)
 
 parseInput :: String -> [(Int, [Int])]
 parseInput input = map parseLine $ lines input
@@ -14,3 +15,4 @@ main = do
   input <- readFile "input/day7.txt"
   let equations = parseInput input
   putStrLn $ "Part 1: " ++ (show $ part1 equations)
+  putStrLn $ "Part 2: " ++ (show $ part2 equations)

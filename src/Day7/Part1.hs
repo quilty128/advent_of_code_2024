@@ -1,7 +1,7 @@
 -- Incomplete patterns in this file work for all puzzle inputs
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
-module Day7.Part1 (part1) where
+module Day7.Part1 where
 
 import Data.Bits
 
