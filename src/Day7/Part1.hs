@@ -53,16 +53,12 @@ getFuncs n ops0 = take n $ step ops0
       0 -> (+) : step (ops `shiftR` 1)
       1 -> (*) : step (ops `shiftR` 1)
 
--- Apply binary operations in sequence; `length xs0` must be one greater than
+-- Apply binary operations left to right; `length xs0` must be one greater than
 -- `length funcs0`.
 applyFuncs :: [a -> a -> a] -> [a] -> a
 applyFuncs _ [] = error "applyFuncs: No operands provided"
-applyFuncs funcs0 (x0 : xs0)
-  | length xs0 /= length funcs0 = error "applyFuncs: Wrong number of operands"
-  | otherwise = step x0 funcs0 xs0
-  where
-    step y [] [] = y
-    step y (f : fs) (x : xs) = step (f x y) fs xs
+applyFuncs funcs0 (x0 : xs0) =
+  foldl (\acc (f, x) -> f acc x) x0 $ zip funcs0 xs0
 
 validateEquation :: (Int, [Int]) -> Bool
 validateEquation (testVal, operands) = go 0
