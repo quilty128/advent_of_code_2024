@@ -68,3 +68,12 @@ executable day7
   other-modules:
     Day7.Part1
     Day7.Part2
+
+executable day7-optimized
+  import: common-options
+  main-is: Day7Optimized/Main.hs
+  hs-source-dirs: src
+  other-modules:
+    Day7Optimized.Part1
+    , Day7Optimized.Part2
+    , Shared.Utils 
