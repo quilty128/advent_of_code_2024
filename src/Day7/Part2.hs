@@ -4,12 +4,6 @@ module Day7.Part2 where
 
 import Day7.Part1 (applyFuncs)
 
--- EXPLANATION
---
--- Like part 1, map an integer to a list of operations and increment it to step
--- through. But since we now have 3 operations, we convert our integer to a
--- ternary (base 3) String, then map that to a list of functions.
-
 (.||.) :: Int -> Int -> Int
 {-# INLINE (.||.) #-}
 (.||.) x y = read $ show x ++ show y
@@ -22,6 +16,7 @@ getOperators n ops0 = take n $ go ops0
       0 -> (+) : go (ops `div` 3)
       1 -> (*) : go (ops `div` 3)
       2 -> (.||.) : go (ops `div` 3)
+      where nextDigit = ops .&. 3
 
 validateEquation :: (Int, [Int]) -> Bool
 validateEquation (testVal, [x]) = testVal == x
