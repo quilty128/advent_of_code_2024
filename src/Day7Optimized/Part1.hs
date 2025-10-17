@@ -2,32 +2,17 @@
 
 module Day7Optimized.Part1 where
 
-import Data.Bits (shiftR, (.&.))
 import Data.List (foldl')
 
--- Apply functions left to right
-applyFuncs :: [a] -> [a -> a -> a] -> a
-applyFuncs [] _ = error "applyFuncs: No operands provided"
-applyFuncs (x0 : xs0) funcs0
-  | length xs0 /= length funcs0 = error "applyFuncs: Wrong length lists"
-  | otherwise = foldl (\acc (f, x) -> f acc x) x0 $ zip funcs0 xs0
-
-getOperatorList :: Int -> Int -> [(Int -> Int -> Int)]
-{-# INLINE getOperatorList #-}
-getOperatorList n ops0 = take n $ step ops0
-  where
-    step ops = case ops .&. 1 of
-      0 -> (+) : step (ops `shiftR` 1)
-      1 -> (*) : step (ops `shiftR` 1)
-
-getOperatorLists :: Int -> [[Int -> Int -> Int]]
-getOperatorLists len = map (getOperatorList len) [0 .. 3 ^ len - 1]
-
+-- This function is not tail recursive due to the `||` operator, but that is not 
+-- a problem because it prunes aggressively and the input lists are quite short.
 validateEquation :: (Int, [Int]) -> Bool
-validateEquation (testVal, [x]) = testVal == x
-validateEquation (testVal, operands) =
-  any (\operations -> applyFuncs operands operations == testVal) $
-    getOperatorLists (length operands - 1)
+validateEquation (testVal, (x0 : xs0)) = go x0 xs0
+  where
+    go acc [] = acc == testVal
+    go acc (x : xs)
+      | acc > testVal = False
+      | otherwise = go (acc + x) xs || go (acc * x) xs
 
 part1 :: [(Int, [Int])] -> Int
 part1 =
