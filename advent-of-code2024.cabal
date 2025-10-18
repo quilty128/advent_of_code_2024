@@ -76,3 +76,8 @@ executable day7-optimized
   other-modules:
     Day7Optimized.Part1
     , Day7Optimized.Part2
+
+executable day8
+  import: common-options
+  main-is: Day8/Main.hs
+  hs-source-dirs: src
