@@ -81,3 +81,6 @@ executable day8
   import: common-options
   main-is: Day8/Main.hs
   hs-source-dirs: src
+  other-modules:
+    Day8.Part1
+    Day8.Part2
