@@ -2,6 +2,7 @@
 
 module Day7.Part2 where
 
+import Data.Bits ((.&.))
 import Day7.Part1 (applyFuncs)
 
 (.||.) :: Int -> Int -> Int
@@ -16,7 +17,6 @@ getOperators n ops0 = take n $ go ops0
       0 -> (+) : go (ops `div` 3)
       1 -> (*) : go (ops `div` 3)
       2 -> (.||.) : go (ops `div` 3)
-      where nextDigit = ops .&. 3
 
 validateEquation :: (Int, [Int]) -> Bool
 validateEquation (testVal, [x]) = testVal == x

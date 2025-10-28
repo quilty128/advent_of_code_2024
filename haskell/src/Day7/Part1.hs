@@ -28,6 +28,7 @@ validateEquation (testVal, operands) = go 0
       | result == testVal = True
       | popCount ops >= n = False
       | otherwise = go (ops + 1)
+      where result = applyFuncs (getFuncs n ops) operands
 
 part1 :: [(Int, [Int])] -> Int
 part1 equations = sum $ map fst $ filter validateEquation equations
