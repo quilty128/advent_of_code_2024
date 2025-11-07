@@ -18,6 +18,7 @@ common common-options
     , matrix
     , hashmap
     , sized-vector
+    , containers
 
 library
   import: common-options
@@ -93,4 +94,9 @@ executable day9
 executable day10
   import: common-options
   main-is: Day10/Main.hs
+  hs-source-dirs: src
+
+executable day11
+  import: common-options
+  main-is: Day11/Main.hs
   hs-source-dirs: src
