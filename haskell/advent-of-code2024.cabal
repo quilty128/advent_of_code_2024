@@ -89,3 +89,8 @@ executable day9
   import: common-options
   main-is: Day9/Main.hs
   hs-source-dirs: src
+
+executable day10
+  import: common-options
+  main-is: Day10/Main.hs
+  hs-source-dirs: src
